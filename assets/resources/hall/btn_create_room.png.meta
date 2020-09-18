@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.5",
+  "uuid": "72aa2fa0-25f9-49d8-b0dd-c686e232041c",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 383,
+  "height": 159,
+  "platformSettings": {},
+  "subMetas": {
+    "btn_create_room": {
+      "ver": "1.0.4",
+      "uuid": "b2c6eb16-f6fe-44d3-8a11-7ac8e66aa5b2",
+      "rawTextureUuid": "72aa2fa0-25f9-49d8-b0dd-c686e232041c",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 383,
+      "height": 159,
+      "rawWidth": 383,
+      "rawHeight": 159,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
