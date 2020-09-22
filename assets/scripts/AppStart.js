@@ -32,7 +32,7 @@ cc.Class({
         var netstatusLabel = this.netstatusLabel;
         var loginBtn = this.loginBtn;
 
-        xhr.open("GET", config.serverIP + "/?versionCode=" + config.versionCode, true);
+        xhr.open("GET", config.ServerIP + "/?versionCode=" + config.VersionCode, true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE && (xhr.status >= 200 && xhr.status < 300)) {
                 resoultCode = this.responseText;

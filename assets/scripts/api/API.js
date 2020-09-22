@@ -1,12 +1,20 @@
-module.exports = {
-    
-    getJSONMessage(message) {
-        if (message != null) {
-            let result;
-            let serverMessage = JSON.parse(message);
-            result.type = serverMessage.type;
-            result.data = serverMessage.data;
-            return result;
-        }
-    },
+var sendJSON = (type, data) => {
+    if (type != null) {
+        return JSON.stringify({
+            "type": type,
+            "data": data,
+        })
+    }
 }
+
+var sendJSON = (type, data, userPos) => {
+    if (type != null) {
+        return JSON.stringify({
+            "type": type,
+            "data": data,
+            "userPos": userPos,
+        })
+    }
+}
+
+module.exports = sendJSON;

@@ -399,7 +399,7 @@
         "__id__": 144
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 175
@@ -8310,7 +8310,7 @@
         "__id__": 237
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 252
@@ -9200,7 +9200,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "OffLinePic",
+    "_name": "MyOffLine",
     "_objFlags": 0,
     "_parent": {
       "__id__": 192
@@ -9326,7 +9326,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Z_zhunbeizhuangt",
+    "_name": "MyReady",
     "_objFlags": 0,
     "_parent": {
       "__id__": 192
@@ -9722,7 +9722,7 @@
         "__id__": 215
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 220
@@ -9875,13 +9875,13 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "OffLinePic",
+    "_name": "LeftOffLine",
     "_objFlags": 0,
     "_parent": {
       "__id__": 207
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 211
@@ -10001,13 +10001,13 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Z_zhunbeizhuangt",
+    "_name": "LeftReady",
     "_objFlags": 0,
     "_parent": {
       "__id__": 207
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 214
@@ -10397,7 +10397,7 @@
         "__id__": 230
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 235
@@ -10550,13 +10550,13 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "OffLinePic",
+    "_name": "TopOffLine",
     "_objFlags": 0,
     "_parent": {
       "__id__": 222
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 226
@@ -10676,13 +10676,13 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Z_zhunbeizhuangt",
+    "_name": "TopReady",
     "_objFlags": 0,
     "_parent": {
       "__id__": 222
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 229
@@ -11072,7 +11072,7 @@
         "__id__": 245
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 250
@@ -11225,13 +11225,13 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "OffLinePic",
+    "_name": "RightOffLine",
     "_objFlags": 0,
     "_parent": {
       "__id__": 237
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 241
@@ -11351,13 +11351,13 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "ReadyPic",
+    "_name": "RightReady",
     "_objFlags": 0,
     "_parent": {
       "__id__": 237
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 244
@@ -11761,6 +11761,42 @@
       "__id__": 176
     },
     "_enabled": true,
+    "MyUser": {
+      "__id__": 192
+    },
+    "MyUserReady": {
+      "__id__": 199
+    },
+    "MyUserOffLine": {
+      "__id__": 196
+    },
+    "LeftUser": {
+      "__id__": 207
+    },
+    "LeftUserReady": {
+      "__id__": 214
+    },
+    "LeftUserOffLine": {
+      "__id__": 211
+    },
+    "TopUser": {
+      "__id__": 222
+    },
+    "TopUserReady": {
+      "__id__": 229
+    },
+    "TopUserOffLine": {
+      "__id__": 226
+    },
+    "RightUser": {
+      "__id__": 237
+    },
+    "RightUserReady": {
+      "__id__": 244
+    },
+    "RightUserOffLine": {
+      "__id__": 241
+    },
     "_id": "23L2m9+QBHkI+lNzVFhLud"
   },
   {
@@ -11839,33 +11875,47 @@
     "LeftPlayedCardsPrefab": {
       "__uuid__": "52399e61-9bfb-4c66-b5e8-19ab085f725a"
     },
-    "LeftPlayedCardsLayout": [
-      {
-        "__id__": 141
-      }
-    ],
+    "LeftPlayedCardsLayout": {
+      "__id__": 141
+    },
     "TopPlayer": {
       "__id__": 72
     },
     "TopPlayedCardsPrefab": {
       "__uuid__": "f12f580d-b595-4396-9a52-129cd600e896"
     },
-    "TopPlayedCardsLayout": [
-      {
-        "__id__": 105
-      }
-    ],
+    "TopPlayedCardsLayout": {
+      "__id__": 105
+    },
     "RightPlayer": {
       "__id__": 36
     },
     "RightPlayedCardsPrefab": {
       "__uuid__": "504aca91-9074-4225-9d9f-4f868c363d94"
     },
-    "RightPlayedCardsLayout": [
+    "RightPlayedCardsLayout": {
+      "__id__": 69
+    },
+    "Indicator": [
       {
-        "__id__": 69
+        "__id__": 31
+      },
+      {
+        "__id__": 22
+      },
+      {
+        "__id__": 25
+      },
+      {
+        "__id__": 28
       }
     ],
+    "Game": {
+      "__id__": 8
+    },
+    "Wait": {
+      "__id__": 176
+    },
     "_id": "cdzlQmd/RDu5CV5ihE4TRU"
   },
   {

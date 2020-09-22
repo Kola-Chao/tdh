@@ -2,7 +2,9 @@ class Config {
 
 };
 
-Config.serverIP = "http://localhost:8080";
-Config.versionCode = 1;
-Config.webSocketTimeOut = 100;//正式部署可改成0
+Config.ServerIP = "http://localhost:8080";
+Config.VersionCode = 1;
+Config.WebSocketTimeOut = 100; //正式部署可改成0
+Config.WebSocketUrl = "ws://localhost:8080";
+
 module.exports = Config;

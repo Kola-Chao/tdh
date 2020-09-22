@@ -5,25 +5,32 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 const gameManager = require('./GameManager');
+const Config = require('../global/Config');
 const APIConfig = require('../global/APIConfig');
+const Broadcase = require('../global/Broadcast');
+const Broadcast = require('../global/Broadcast');
+const sendJSON = require('./api/API');
+const UserInfo = require('../global/UserInfo');
 var currentNum = 0; //第几次出牌
 var myHoldCardsData = [];
-var myHoldCardsLayout = [];
-var myPlayedCards = [];
-var leftPlayedCards = [];
+// var myHoldCardsLayout = [];
+// var myPlayedCards = [];
+// var leftPlayedCards = [];
+var resHead = "game/my/Z_my";
+var resBottom = "M";
+var isMyTurn = false;
 
-module.exports = ws = new WebSocket("ws://localhost:8080");;
+module.exports = ws = new WebSocket(Config.WebSocketUrl);
 
 cc.Class({
     extends: cc.Component,
-
     properties: {
         MyPlayer: {
             default: null,
             type: cc.Node,
         },
         MyHoldCardsLayout: {
-            default: [],
+            default: null,
             type: cc.Layout,
         },
         MyHoldCardPrefab: {
@@ -52,7 +59,7 @@ cc.Class({
             type: cc.Prefab,
         },
         LeftPlayedCardsLayout: {
-            default: [],
+            default: null,
             type: cc.Layout,
         },
 
@@ -65,7 +72,7 @@ cc.Class({
             type: cc.Prefab,
         },
         TopPlayedCardsLayout: {
-            default: [],
+            default: null,
             type: cc.Layout,
         },
 
@@ -78,67 +85,80 @@ cc.Class({
             type: cc.Prefab,
         },
         RightPlayedCardsLayout: {
-            default: [],
+            default: null,
             type: cc.Layout,
         },
+
+        Indicator: {
+            default: [],
+            type: cc.Sprite,
+        },
+
+        Game: cc.Node,
+        Wait: cc.Node,
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad() {
-        myHoldCardsLayout = this.MyHoldCardsLayout.getComponentsInChildren(cc.Sprite);
-        myPlayedCards = this.MyPlayedCardsLayout.getComponentsInChildren(cc.Sprite);
+        // myHoldCardsLayout = this.MyHoldCardsLayout.getComponentsInChildren(cc.Sprite);
+        // myPlayedCards = this.MyPlayedCardsLayout.getComponentsInChildren(cc.Sprite);
         var self = this;
-        this.node.on("refreshHoldCarsByInit", function (data) {
+        this.node.on(Broadcase.RefreshHoldCardsByInit, function (data) {
             myHoldCardsData = self.insertionSort(data);
             self.refreshHoldCardsByInit(myHoldCardsData);
         });
-        this.MyPlayer.active = true;
-        this.LeftPlayer.active = true;
-        this.TopPlayer.active = true;
-        this.RightPlayer.active = true;
-        this.MyHoldCardsLayout.active = true;
-
-
-
-        this.MyPlayerOperate.node.active = true;
-        this.MyPlayerOperate.node.getChildByName("ZiMoBtn").active = true;
-        this.MyPlayerOperate.node.getChildByName("HuPaiBtn").active = true;
-        this.MyPlayerOperate.node.getChildByName("PengBtn").active = true;
-        this.MyPlayerOperate.node.getChildByName("GangBtn").active = true;
-    },
-
-    start() {
-
-        var self = this;
-
-        ws.onmessage = function (event) {
-            let message = JSON.parse(event.data);
-            if (message.type == APIConfig.Init) {
-                self.node.emit("refreshHoldCarsByInit", message.data);
-            } else if (message.type == APIConfig.MoPai) {
-                const isLargeNumber = (myHoldCardsData) => myHoldCardsData >= message.data;
-                let index = myHoldCardsData.findIndex(isLargeNumber); //根据规则找到最近一个大于等于当前摸到的拍的位置
-                myHoldCardsData.splice(index, 0, message.data); //指定位置插入元素
-                self.refreshHoldCardsByMoPai(message.data, index);
-                // console.log(myHoldCardsData);
-            } else {
-
+        this.node.once(Broadcase.GameWait_Start, function (event) {
+            event.stopPropagation();
+            self.Game.active = true;
+            self.Wait.active = false;
+            if (UserInfo.gamePos == UserInfo.bottomPos) { //初始化双击
+                isMyTurn = true;
             }
-        };
-
-        setTimeout(function () {
             if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: APIConfig.Init,
-                    data: 0,
-                }));
-
+                ws.send(sendJSON(APIConfig.Init, UserInfo.gamePos));
             } else {
                 console.log("timeout...");
             }
-        }, 1000);
+        });
 
+        // this.MyPlayerOperate.node.active = true;
+        // this.MyPlayerOperate.node.getChildByName("ZiMoBtn").active = true;
+        // this.MyPlayerOperate.node.getChildByName("HuPaiBtn").active = true;
+        // this.MyPlayerOperate.node.getChildByName("PengBtn").active = true;
+        // this.MyPlayerOperate.node.getChildByName("GangBtn").active = true;
+    },
+
+    start() {
+        var self = this;
+        ws.addEventListener("message", function (event) {
+            let message = JSON.parse(event.data);
+            switch (message.type) {
+                case APIConfig.Init:
+                    self.node.emit(Broadcast.RefreshHoldCardsByInit, message.data);
+                    break;
+                case APIConfig.ChuPai:
+                    self.refreshPlayedCardsByChuPai(message.data, message.userPos)
+                    break;
+                case APIConfig.MoPai:
+                    const isLargeNumber = (myHoldCardsData) => myHoldCardsData >= message.data;
+                    let index = myHoldCardsData.findIndex(isLargeNumber); //根据规则找到最近一个大于等于当前摸到的拍的位置
+                    myHoldCardsData.splice(index, 0, message.data); //指定位置插入元素
+                    resHead = "game/my/Z_my"; //讲资源文件再次初始化为默认
+                    resBottom = "M";
+                    self.refreshHoldCardsByMoPai(message.data, index);
+                    break;
+                case APIConfig.ChangePlayer:
+                    if (message.data == UserInfo.gamePos) {
+                        ws.send(sendJSON(APIConfig.MoPai));
+                        isMyTurn = true;
+                    }
+                    showNowPlayer(message.data);
+                    break;
+                default:
+                    break;
+            }
+        })
     },
 
     // update (dt) {},
@@ -147,21 +167,60 @@ cc.Class({
         cc.audioEngine.stop(this.current);
     },
 
-    //出牌
+    //双击出牌
     onHoldCardDoubleClick(node, data) {
-        myHoldCardsData.splice(myHoldCardsData.indexOf(data), 1);
-        this.refreshPlayedCardsByChuPai(data);
-        node.removeFromParent(false);
-        ws.send(JSON.stringify({
-            type: APIConfig.ChuPai,
-            data: data,
-        }));
+        if (isMyTurn) {
+            myHoldCardsData.splice(myHoldCardsData.indexOf(data), 1);
+            this.refreshPlayedCardsByChuPai(data, UserInfo.gamePos);
+            node.removeFromParent(false);
+            ws.send(sendJSON(APIConfig.ChuPai, data, UserInfo.gamePos));
+        }
+        isMyTurn = false;
     },
 
-    //通过出牌逻辑刷新出牌UI
-    refreshPlayedCardsByChuPai(data) {
-        var item = cc.instantiate(this.MyPlayedCardsPrefab);
-        var layout = this.MyPlayedCardsLayout;
+
+    /**
+     * 通过出牌逻辑刷新出牌UI
+     * @param {} data
+     出的牌的ID 
+     * @param {} userPos 
+     出牌用户的game position
+     */
+    refreshPlayedCardsByChuPai(data, userPos) {
+        var item;
+        var layout;
+        if (userPos < UserInfo.gamePos) {
+            userPos += 4;
+        }
+        switch (userPos - UserInfo.gamePos) {
+            case UserInfo.bottomPos:
+                item = cc.instantiate(this.MyPlayedCardsPrefab);
+                layout = this.MyPlayedCardsLayout;
+                resHead = "game/my/Z_my";
+                resBottom = "M";
+                break;
+            case UserInfo.LeftPos:
+                item = cc.instantiate(this.LeftPlayedCardsPrefab);
+                layout = this.LeftPlayedCardsLayout;
+                resHead = "game/left/Z_left";
+                resBottom = "L";
+                break;
+            case UserInfo.TopPos:
+                item = cc.instantiate(this.TopPlayedCardsPrefab);
+                layout = this.TopPlayedCardsLayout;
+                resHead = "game/top/Z_bottom";
+                resBottom = "B";
+                break;
+            case UserInfo.RightPos:
+                item = cc.instantiate(this.RightPlayedCardsPrefab);
+                layout = this.RightPlayedCardsLayout;
+                resHead = "game/right/Z_right";
+                resBottom = "R";
+                break;
+            default:
+                break;
+        }
+
         cc.resources.load("sound/gameplay/" + data, cc.AudioClip, null, function (err, clip) {
             var audioID = cc.audioEngine.play(clip, false, 1);
         });
@@ -178,25 +237,31 @@ cc.Class({
             itemNum.string = element;
             self.refreshUI(item, layout, element);
         });
-
-
-
     },
 
     //通过摸牌刷新手中的牌
     refreshHoldCardsByMoPai(data, position) {
+        
         var layout = this.MyHoldCardsLayout;
         var item = cc.instantiate(this.MyHoldCardPrefab);
         var itemNum = item.getComponentInChildren(cc.Label);
         itemNum.string = data;
         this.refreshUI(item, layout, data, position);
+    },
 
+    showNowPlayer(position) {
+        switch (position) {
+            case UserInfo.bottomPos:
+
+                break;
+            default:
+                break;
+        }
     },
 
     //插入排序
     //https://juejin.im/post/6844903609885261832
     insertionSort(arr) {
-        //console.time('InsertionSort');
         let len = arr.length;
         for (let i = 1; i < len; i++) {
             let j = i;
@@ -207,61 +272,60 @@ cc.Class({
             }
             arr[j] = tmp;
         }
-        //console.timeEnd('InsertionSort');
         return arr;
     },
 
     refreshUI(item, layout, element, position) {
         let itemFrame = item.getComponent(cc.Sprite);
         if (element < 10) { //条
-            cc.resources.load("game/my/Z_my", cc.SpriteAtlas, function (err, atlas) {
-                var frame = atlas.getSpriteFrame('M_bamboo_' + element.toString());
+            cc.resources.load(resHead, cc.SpriteAtlas, function (err, atlas) {
+                var frame = atlas.getSpriteFrame(resBottom + "_bamboo_" + element.toString());
                 itemFrame.spriteFrame = frame;
             });
 
         } else if (element < 20) { //饼
-            cc.resources.load("game/my/Z_my", cc.SpriteAtlas, function (err, atlas) {
-                var frame = atlas.getSpriteFrame('M_dot_' + (element - 10).toString());
+            cc.resources.load(resHead, cc.SpriteAtlas, function (err, atlas) {
+                var frame = atlas.getSpriteFrame(resBottom + "_dot_" + (element - 10).toString());
                 itemFrame.spriteFrame = frame;
             });
         } else if (element < 30) { //万
-            cc.resources.load("game/my/Z_my", cc.SpriteAtlas, function (err, atlas) {
-                var frame = atlas.getSpriteFrame('M_character_' + (element - 20).toString());
+            cc.resources.load(resHead, cc.SpriteAtlas, function (err, atlas) {
+                var frame = atlas.getSpriteFrame(resBottom + "_character_" + (element - 20).toString());
                 itemFrame.spriteFrame = frame;
             });
         } else if (element < 50) { //东南西北中发白
             var flowCardName;
             switch (element) {
                 case 31: { //东
-                    flowCardName = "M_wind_east";
+                    flowCardName = resBottom + "_wind_east";
                     break;
                 }
                 case 33: { //南
-                    flowCardName = "M_wind_south";
+                    flowCardName = resBottom + "_wind_south";
                     break;
                 }
                 case 35: { //西
-                    flowCardName = "M_wind_west";
+                    flowCardName = resBottom + "_wind_west";
                     break;
                 }
                 case 37: { //北
-                    flowCardName = "M_wind_north";
+                    flowCardName = resBottom + "_wind_north";
                     break;
                 }
                 case 41: { //中
-                    flowCardName = "M_red";
+                    flowCardName = resBottom + "_red";
                     break;
                 }
                 case 43: { //发
-                    flowCardName = "M_green";
+                    flowCardName = resBottom + "_green";
                     break;
                 }
                 case 45: { //白
-                    flowCardName = "M_white";
+                    flowCardName = resBottom + "_white";
                     break;
                 }
             }
-            cc.resources.load("game/my/Z_my", cc.SpriteAtlas, function (err, atlas) {
+            cc.resources.load(resHead, cc.SpriteAtlas, function (err, atlas) {
                 var frame = atlas.getSpriteFrame(flowCardName);
                 itemFrame.spriteFrame = frame;
 
@@ -270,6 +334,8 @@ cc.Class({
             console.log("not legal data formate from server...")
         };
         if (position != null) {
+            //按照从大到小排序的位置插入的位置
+            //主要是用来refresh持有手牌的
             layout.node.insertChild(item, position);
         } else {
             layout.node.addChild(item);
@@ -300,6 +366,8 @@ cc.Class({
     onZiMoBtnClick() {
 
     },
+
+
 
 
     canHuLaizi(cards, laiziCount) {
@@ -400,4 +468,6 @@ cc.Class({
         }
         return false;
     },
+
+
 });

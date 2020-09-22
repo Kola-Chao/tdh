@@ -99,7 +99,7 @@ cc.Class({
     onConfirmBtnClick() {
         this.btnClickSound();
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", config.serverIP + "/user/registUser?username=" + this.userNameEditBox.string + "&gender=" + gender, true);
+        xhr.open("GET", config.ServerIP + "/user/registUser?username=" + this.userNameEditBox.string + "&gender=" + gender, true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE && (xhr.status >= 200 && xhr.status < 300)) {
                 if (this.responseText == "SUCCESS") {
