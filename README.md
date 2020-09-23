@@ -1,5 +1,7 @@
 # Cocoscreator学习项目
-自主开发（前端&后端），仅使用了麒麟子大大开源项目里的UI
+自主开发（前端&后端），仅使用了麒麟子大大开源项目里的UI 
+
+通过该项目能基本的掌握cocos的基本组件、自定义组件、Layout+prefab Widget等优化布局、动画和音效使用
 
 ## 前端 （Cocoscreator 2.4.2）
 使用的http和websocket与服务器通讯。全部使用的cocosAPI
